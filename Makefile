@@ -14,8 +14,8 @@ ifeq ($(PLATFORM), OSX)
   COMPOSER_CACHE_DIR = ~/tmp/composer
   BOWER_CACHE_DIR = ~/tmp/bower
 else
-  CONTAINER_USERNAME = dummy
-  CONTAINER_GROUPNAME = dummy
+  CONTAINER_USERNAME = dockerdev
+  CONTAINER_GROUPNAME = dockerdev
   HOMEDIR = /home/$(CONTAINER_USERNAME)
   GROUP_ID = $(shell id -g)
   USER_ID = $(shell id -u)
@@ -57,21 +57,16 @@ composer:
 		-v $(COMPOSER_CACHE_DIR):$(HOMEDIR)/.composer \
 		-v $(DOCKER_SSH_IDENTITY):/var/tmp/id \
 		-v $(DOCKER_SSH_KNOWN_HOSTS):/var/tmp/known_hosts \
-		marmelab/composer-hhvm bash -ci '\
+		stefanorg/docker-composer-php bash -ci '\
 			$(CREATE_USER_COMMAND) \
 			$(ADD_SSH_ACCESS_COMMAND) \
 			$(AUTHORIZE_HOME_DIR_COMMAND) \
-			$(EXECUTE_AS) hhvm /usr/local/bin/composer $(COMMAND_ARGS)'
+			$(EXECUTE_AS) php /usr/local/bin/composer $(COMMAND_ARGS)'
 
 phpunit:
 	@docker run -ti --rm=true \
 		-v `pwd`:/srv \
-		marmelab/phpunit-hhvm $(COMMAND_ARGS)
-
-compass:
-	@docker run -ti --rm=true \
-		-v `pwd`:/srv \
-		marmelab/compass $(COMMAND_ARGS)
+		stefanorg/docker-phpunit $(COMMAND_ARGS)
 
 bower:
 	@docker run -ti --rm=true \
@@ -79,7 +74,7 @@ bower:
 		-v $(BOWER_CACHE_DIR):$(HOMEDIR)/.bower \
 		-v $(DOCKER_SSH_IDENTITY):/var/tmp/id \
 		-v $(DOCKER_SSH_KNOWN_HOSTS):/var/tmp/known_hosts \
-		marmelab/bower bash -ci '\
+		stefanorg/docker-bower bash -ci '\
 			$(CREATE_USER_COMMAND) \
 			$(ADD_SSH_ACCESS_COMMAND) \
 			$(AUTHORIZE_HOME_DIR_COMMAND) \
